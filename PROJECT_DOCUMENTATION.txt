@@ -1,0 +1,243 @@
+# Documentação do Projeto Sistema Bancário Seguro
+
+## Visão Geral
+Sistema bancário seguro desenvolvido com React, TypeScript e Supabase, oferecendo funcionalidades de PIX, gerenciamento de conta e transações.
+
+## Estrutura do Projeto
+
+### Dependências Principais
+```json
+{
+  "@supabase/supabase-js": "^2.47.7",
+  "@types/bcryptjs": "^2.4.6",
+  "bcryptjs": "^2.4.3",
+  "date-fns": "^3.3.1",
+  "dotenv": "^16.4.7",
+  "lucide-react": "^0.344.0",
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-hot-toast": "^2.4.1",
+  "react-router-dom": "^6.22.3",
+  "zod": "^3.24.1",
+  "zustand": "^4.5.2"
+}
+```
+
+### Configuração do Vite
+```typescript
+// vite.config.ts
+{
+  plugins: [
+    react(),
+    nodePolyfills({
+      include: ['node-pre-gyp', 'util', 'buffer', 'process'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
+  ],
+  optimizeDeps: {
+    exclude: ['lucide-react'],
+    include: ['react', 'react-dom']
+  }
+}
+```
+
+### Estrutura de Diretórios
+```
+src/
+├── components/
+│   ├── auth/
+│   ├── cards/
+│   ├── chat/
+│   ├── common/
+│   ├── mobile/
+│   ├── navigation/
+│   ├── profile/
+│   └── transactions/
+├── hooks/
+├── lib/
+├── pages/
+├── services/
+├── store/
+├── types/
+└── utils/
+```
+
+## Componentes Principais
+
+### Autenticação
+- `src/services/cryptoService.ts`: Gerencia criptografia de senhas usando bcryptjs
+- `src/services/authService.ts`: Serviços de autenticação e gerenciamento de usuário
+- `src/lib/auth.ts`: Funções principais de autenticação (login, registro, etc.)
+
+### Navegação
+- Desktop: Sidebar com menu completo
+- Mobile: Barra de navegação inferior com ícones
+- Rotas principais: Dashboard, PIX, QR Code, Transactions, Profile
+
+### Layout Responsivo
+- Desktop: Sidebar lateral fixa
+- Mobile: Navegação inferior + menu hamburguer
+- Breakpoint principal: lg (1024px)
+
+## Funcionalidades Principais
+
+### Autenticação
+1. Login com email/senha
+2. Registro de nova conta
+3. Recuperação de senha
+4. Proteção contra tentativas múltiplas de login
+
+### Transações
+1. Envio de PIX
+2. Geração de QR Code
+3. Histórico de transações
+4. Filtros e busca
+
+### Perfil
+1. Visualização/edição de dados
+2. Alteração de senha
+3. Verificação de PIN
+4. Logout
+
+## Banco de Dados (Supabase)
+
+### Tabelas Principais
+1. users
+   - id
+   - name
+   - email
+   - password (hashed)
+   - account
+   - avatar_url
+   - auth (PIN)
+   - failed_attempts
+   - locked
+
+2. saldo
+   - account
+   - saldo
+
+3. transactions
+   - id
+   - from_account
+   - to_account
+   - amount
+   - type
+   - date
+   - description
+
+## Segurança
+
+### Criptografia de Senha
+```typescript
+const SALT_ROUNDS = 12;
+
+export const cryptoService = {
+  hashPassword: async (password: string): Promise<string> => {
+    return bcrypt.hash(password, SALT_ROUNDS);
+  },
+  verifyPassword: async (password: string, hash: string): Promise<boolean> => {
+    return bcrypt.compare(password, hash);
+  }
+};
+```
+
+### Proteção contra Ataques
+1. Bloqueio após 5 tentativas falhas de login
+2. Senhas hasheadas com bcrypt
+3. Verificação de PIN para operações sensíveis
+4. Tokens JWT para autenticação
+
+## Estado Global (Zustand)
+
+### Stores Principais
+1. useAuthStore: Gerenciamento de autenticação
+2. useTransactionStore: Gerenciamento de transações
+3. useBalanceStore: Gerenciamento de saldo
+
+## UI/UX
+
+### Componentes de Interface
+1. Cards informativos
+2. Botões de ação rápida
+3. Formulários validados
+4. Feedback visual (toasts)
+
+### Temas e Cores
+- Principal: Azul (#2563EB)
+- Sucesso: Verde (#10B981)
+- Erro: Vermelho (#EF4444)
+- Texto: Cinza (#374151)
+
+## Integração com APIs
+
+### Supabase
+1. Autenticação de usuários
+2. Armazenamento de dados
+3. Realtime updates para saldo e transações
+
+### Serviços Externos
+1. DiceBear: Geração de avatares
+2. PIX: Integração com sistema bancário
+3. QR Code: Geração de códigos
+
+## Desenvolvimento
+
+### Scripts Disponíveis
+```json
+{
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview"
+}
+```
+
+### Variáveis de Ambiente
+```env
+SUPABASE_URL=sua_url_supabase
+SUPABASE_ANON_KEY=sua_chave_anonima
+```
+
+## Considerações de Deploy
+
+### Build
+1. Otimização de assets
+2. Minificação de código
+3. Tree shaking
+
+### Ambiente
+1. Node.js 18+
+2. Supabase project
+3. Variáveis de ambiente configuradas
+
+## Manutenção
+
+### Logs e Monitoramento
+1. Erros de autenticação
+2. Falhas em transações
+3. Tentativas de login
+
+### Backups
+1. Dados do Supabase
+2. Configurações do projeto
+3. Variáveis de ambiente
+
+## Próximos Passos
+
+### Melhorias Sugeridas
+1. Testes automatizados
+2. PWA support
+3. Internacionalização
+4. Dark mode
+5. Mais opções de autenticação
+
+### Escalabilidade
+1. Caching
+2. Rate limiting
+3. Load balancing
+4. CDN integration
